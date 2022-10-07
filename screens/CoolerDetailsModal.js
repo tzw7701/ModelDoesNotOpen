@@ -4,7 +4,6 @@ import {
   Modal,
   StyleSheet,
   Text,
-  Pressable,
   View,
   Image,
   TouchableOpacity,
@@ -13,9 +12,14 @@ import {
 const CoolerDetailsModal = (props) => {
   const [modalVisible, setModalVisible] = useState(props.modalVisible);
   const [selectedItem, setSelectedItem] = useState(props.selectedItem);
-  useEffect(() => {
+  const isTempOk =
+    selectedItem.last_temperature_update < selectedItem.maximum_temperature &&
+    selectedItem.last_temperature_update > selectedItem.minimum_temperature;
+  const [icon, setIcon] = useState(
+    isTempOk ? require("../assets/v-icon.png") : require("../assets/x-icon.png")
+  );
 
-  }, [modalVisible]);
+  useEffect(() => {}, [modalVisible]);
 
   return (
     <View style={styles.centeredView}>
@@ -29,31 +33,68 @@ const CoolerDetailsModal = (props) => {
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <View style={styles.temperature}>
-              <Text style={[styles.itemOfFlatList, { fontSize: 30 }]}>{selectedItem.last_temperature_update}°</Text>
+            <View
+              style={[
+                styles.temperature,
+                { backgroundColor: isTempOk ? "#55BEF0" : "#fb3b30" },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.itemOfFlatList,
+                  { fontSize: 30, fontWeight: "500", color: "white" },
+                ]}
+              >
+                {selectedItem.last_temperature_update + "°"}
+              </Text>
             </View>
-            <Pressable
+            <TouchableOpacity
               Pressable
               style={styles.goBack}
               onPress={() => setModalVisible(!modalVisible)}
             >
               <Image source={require("../assets/go-back-icon.png")} />
-            </Pressable>
-            <Pressable style={styles.speaker}>
-              <Image source={require("../assets/speaker.slash.png")} />
-            </Pressable>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.speaker}>
+              <Image
+                style={{
+                  left: 15,
+                  borderWidth: 1,
+                  borderColor: "black",
+                  borderRadius: 25,
+                }}
+                source={require("../assets/speaker.slash.png")}
+              />
+              <Text>מצב צליל</Text>
+            </TouchableOpacity>
             <View style={styles.coolerName}>
-              <Text style={[styles.coolerNameText, { fontSize: 23 }]}>
+              <Text
+                style={[
+                  styles.coolerNameText,
+                  { fontSize: 23, fontWeight: "600" },
+                ]}
+              >
                 {selectedItem.name}
               </Text>
             </View>
             <View style={styles.coolerName}>
-              <Text style={[styles.coolerNameText, { fontSize: 16 }]}>
-                טמפרטורה תקינה: בין {selectedItem.minimum_temperature}° ל {selectedItem.maximum_temperature}°
+              <Text
+                style={[
+                  styles.coolerNameText,
+                  { fontSize: 16, fontWeight: "600" },
+                ]}
+              >
+                טמפרטורה תקינה: בין {selectedItem.minimum_temperature}° ל{" "}
+                {selectedItem.maximum_temperature}°
               </Text>
             </View>
-            <View style={styles.coolerName}>
-              <Text style={[styles.coolerNameText, { fontSize: 13 }]}>
+            <View style={[styles.coolerName]}>
+              <Text
+                style={[
+                  styles.coolerNameText,
+                  { fontSize: 13, fontWeight: "600", color: "#a0a0a0" },
+                ]}
+              >
                 תאריך הפעלה {selectedItem.installation_datetime}
               </Text>
             </View>
@@ -61,9 +102,13 @@ const CoolerDetailsModal = (props) => {
               <Text
                 style={[
                   styles.coolerNameText,
-                  { fontSize: 16, right: -110, top: 20 },
+                  { fontSize: 18, right: 100, top: 20 },
                 ]}
               >
+                <View>
+                  <Image source={require("../assets/battery-icon.png")} />
+                </View>
+                {"  "}
                 {selectedItem.last_battery_update}% נותרו
               </Text>
             </View>
@@ -71,40 +116,41 @@ const CoolerDetailsModal = (props) => {
               <Text
                 style={[
                   styles.coolerNameText,
-                  { fontSize: 16, right: -35, top: 20 },
+                  { fontSize: 16, right: 20, top: 22, color: "#a0a0a0" },
                 ]}
               >
-                הוחלפה לאחרונה בתאריך {selectedItem.datetime_of_battery_replacement}
+                הוחלפה לאחרונה בתאריך{" "}
+                {selectedItem.datetime_of_battery_replacement}
               </Text>
             </View>
             <View style={styles.buttonContainer}>
               <TouchableOpacity
                 style={[styles.buttonLogin, { fontSize: 16, right: -30 }]}
               >
-                <Text>עריכה/מחיקה</Text>
+                <Text> תקלות אחרונות</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={[styles.buttonLogin, { fontSize: 16, right: -45 }]}
               >
-                <Text>תקלות אחרונות</Text>
+                <Text>עריכה/מחיקה</Text>
               </TouchableOpacity>
             </View>
-            <View>
+            <View style={{ top: -40 }}>
               <Text
-                style={[styles.coolerNameText, { fontSize: 16, right: -90 }]}
+                style={[styles.coolerNameText, { fontSize: 16, right: 80 }]}
               >
-               עודכן לפני{" "}
-                  {Math.floor(
-                    (Date.now() - Date.parse(selectedItem.last_datetime_update)) /
-                      1000 /
-                      60
-                  )}{" "}
-                  דקות
+                עודכן לפני{" "}
+                {Math.floor(
+                  (Date.now() - Date.parse(selectedItem.last_datetime_update)) /
+                    1000 /
+                    60
+                )}{" "}
+                דקות
               </Text>
-            </View>
-            <View style={{ right: 130, top: -27, height: 0 }}>
-              <Image source={require("../assets/v-icon.png")} />
+              <View style={{ right: -200, top: -27, height: 0 }}>
+                <Image source={icon} />
+              </View>
             </View>
           </View>
         </View>
@@ -118,13 +164,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 22,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    //marginTop: 22,
   },
   modalView: {
     margin: 20,
     backgroundColor: "white",
     borderRadius: 20,
     padding: 35,
+    paddingBottom: 0,
+    marginBottom: 0,
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
@@ -156,12 +205,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   temperature: {
-    top: -10,
+    top: -25,
     alignContent: "center",
     width: 70,
     height: 70,
     borderRadius: 70 / 4,
-    backgroundColor: "#55BEF0",
   },
   itemOfFlatList: {
     top: 15,
@@ -170,19 +218,19 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   goBack: {
-    top: -80,
-    right: -130,
+    top: -95,
+    right: 150,
   },
-  speaker: { top: -108, right: 130 },
+  speaker: { top: -108, right: -130 },
   coolerName: {
-    top: -60,
+    top: -95,
   },
   buttonContainer: {
     justifyContent: "center",
     alignItems: "center",
     flexDirection: "row",
     right: 25,
-    top: -30,
+    top: -60,
   },
 
   buttonLogin: {
